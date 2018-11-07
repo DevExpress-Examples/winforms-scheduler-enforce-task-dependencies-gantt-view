@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿using DevExpress.XtraScheduler;
+using System;
 using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
-using DevExpress.XtraScheduler;
 using System.Data.SqlClient;
+using System.Windows.Forms;
 
 namespace GanttRestrictions
 {
@@ -26,9 +21,7 @@ namespace GanttRestrictions
             this.resourcesTableAdapter.Fill(this.gantTest01DataSet.Resources);
             // TODO: This line of code loads data into the 'gantTest01DataSet.Appointments' table. You can move, or remove it, as needed.
             this.appointmentsTableAdapter.Fill(this.gantTest01DataSet.Appointments);
-
-            schedulerStorage1.Appointments.CommitIdToDataSource = false;
-
+            
             this.appointmentsTableAdapter.Adapter.RowUpdated += new SqlRowUpdatedEventHandler(appointmentsTableAdapter_RowUpdated);
 
             this.schedulerControl1.OptionsCustomization.AllowAppointmentConflicts = AppointmentConflictsMode.Custom;
@@ -41,14 +34,14 @@ namespace GanttRestrictions
             e.Conflicts.Clear();
 
             AppointmentDependencyBaseCollection depCollectionDep = 
-                schedulerStorage1.AppointmentDependencies.Items.GetDependenciesByDependentId(e.Appointment.Id);
+                schedulerDataStorage1.AppointmentDependencies.Items.GetDependenciesByDependentId(e.Appointment.Id);
             if (depCollectionDep.Count > 0) {
                 if (CheckForInvalidDependenciesAsDependent(depCollectionDep, e.AppointmentClone))
                     e.Conflicts.Add(e.AppointmentClone);
             }
 
             AppointmentDependencyBaseCollection depCollectionPar = 
-                schedulerStorage1.AppointmentDependencies.Items.GetDependenciesByParentId(e.Appointment.Id);
+                schedulerDataStorage1.AppointmentDependencies.Items.GetDependenciesByParentId(e.Appointment.Id);
             if (depCollectionPar.Count > 0) {
                 if (CheckForInvalidDependenciesAsParent(depCollectionPar, e.AppointmentClone))
                     e.Conflicts.Add(e.AppointmentClone);
@@ -59,7 +52,7 @@ namespace GanttRestrictions
         {
             foreach (AppointmentDependency dep in depCollection) {
                 if (dep.Type == AppointmentDependencyType.FinishToStart) {
-                    DateTime checkTime = schedulerStorage1.Appointments.Items.GetAppointmentById(dep.ParentId).End;
+                    DateTime checkTime = schedulerDataStorage1.Appointments.Items.GetAppointmentById(dep.ParentId).End;
                     if (apt.Start < checkTime)
                         return true;
                 }
@@ -71,7 +64,7 @@ namespace GanttRestrictions
         {
             foreach (AppointmentDependency dep in depCollection) {
                 if (dep.Type == AppointmentDependencyType.FinishToStart) {
-                    DateTime checkTime = schedulerStorage1.Appointments.Items.GetAppointmentById(dep.DependentId).Start;
+                    DateTime checkTime = schedulerDataStorage1.Appointments.Items.GetAppointmentById(dep.DependentId).Start;
                     if (apt.End > checkTime)
                         return true;
                 }
@@ -96,20 +89,20 @@ namespace GanttRestrictions
         #endregion #RowUpdatedHandlers
 
         #region #Appointment
-        private void schedulerStorage1_AppointmentsChanged(object sender, PersistentObjectsEventArgs e)
+        private void schedulerDataStorage1_AppointmentsChanged(object sender, PersistentObjectsEventArgs e)
         {
             CommitTask();
         }
 
-        private void schedulerStorage1_AppointmentsDeleted(object sender, PersistentObjectsEventArgs e)
+        private void schedulerDataStorage1_AppointmentsDeleted(object sender, PersistentObjectsEventArgs e)
         {
             CommitTask();
         }
-        private void schedulerStorage1_AppointmentsInserted(object sender, PersistentObjectsEventArgs e)
+        private void schedulerDataStorage1_AppointmentsInserted(object sender, PersistentObjectsEventArgs e)
         {
 
             CommitTask();
-            schedulerStorage1.SetAppointmentId(((Appointment)e.Objects[0]), id);
+            schedulerDataStorage1.SetAppointmentId(((Appointment)e.Objects[0]), id);
         }
         void CommitTask()
         {
@@ -119,17 +112,17 @@ namespace GanttRestrictions
         }
         #endregion #Appointment
         #region #TaskDependencies
-        private void schedulerStorage1_AppointmentDependenciesChanged(object sender, PersistentObjectsEventArgs e)
+        private void schedulerDataStorage1_AppointmentDependenciesChanged(object sender, PersistentObjectsEventArgs e)
         {
             CommitTaskDependency();
         }
 
-        private void schedulerStorage1_AppointmentDependenciesDeleted(object sender, PersistentObjectsEventArgs e)
+        private void schedulerDataStorage1_AppointmentDependenciesDeleted(object sender, PersistentObjectsEventArgs e)
         {
             CommitTaskDependency();
         }
 
-        private void schedulerStorage1_AppointmentDependenciesInserted(object sender, PersistentObjectsEventArgs e)
+        private void schedulerDataStorage1_AppointmentDependenciesInserted(object sender, PersistentObjectsEventArgs e)
         {
             CommitTaskDependency();
         }
