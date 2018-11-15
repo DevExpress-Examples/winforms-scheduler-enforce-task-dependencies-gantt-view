@@ -1,3 +1,8 @@
+<!-- default file list -->
+*Files to look at*:
+
+* [Form1.cs](./CS/GanttRestrictions/Form1.cs) (VB: [Form1.vb](./VB/GanttRestrictions/Form1.vb))
+<!-- default file list end -->
 # How to enforce task dependencies in the Gantt view
 
 
